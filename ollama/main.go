@@ -1,5 +1,6 @@
 package main
 
+// Experimental code
 import (
 	"context"
 	"log"
@@ -41,6 +42,15 @@ func main() {
 		// Trace metadata, if needed
 		span.SetAttributes()
 
+		r = r.WithContext(ctx)
+		proxy.ServeHTTP(w, r)
+	})
+
+	http.HandleFunc("/api/pull", func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := otel.Tracer("ollama-proxy").Start(r.Context(), "proxy /api/pull")
+		defer span.End()
+		// Trace metadata, if needed
+		span.SetAttributes()
 		r = r.WithContext(ctx)
 		proxy.ServeHTTP(w, r)
 	})
